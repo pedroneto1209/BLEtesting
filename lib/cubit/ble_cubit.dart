@@ -10,6 +10,8 @@ class BleCubit extends Cubit<BleState> {
 
   FlutterBlue flutterBlue = FlutterBlue.instance;
 
+  BluetoothCharacteristic receivechar;
+
   //loglist.add(Text('${utf8.decode(snapshot.data)}'));
 
   //writechar.write([
@@ -33,11 +35,60 @@ class BleCubit extends Cubit<BleState> {
 
   BleCubit() : super(BleInitial());
 
-  void connectDevice(BluetoothDevice device) async {
-    await device.connect();
+  void connectDevice(BluetoothDevice device, BuildContext context) async {
+    await device.disconnect();
+
+    await device.connect(autoConnect: false);
+    discoverServc(device, context);
   }
 
-  void scanDevices() async {
+  void discoverServc(BluetoothDevice device, BuildContext context) async {
+    List<BluetoothService> services = await device.discoverServices();
+
+    for (BluetoothService service in services) {
+      if (service.uuid == Guid('0000FFE5-0000-1000-8000-00805F9B34FB')) {
+        discoverChar(service, context);
+      }
+      if (service.uuid == Guid('0000FFE0-0000-1000-8000-00805F9B34FB')) {
+        discoverChar(service, context);
+      }
+    }
+  }
+
+  void discoverChar(BluetoothService service, BuildContext context) {
+    List<BluetoothCharacteristic> characteristics = service.characteristics;
+
+    BluetoothCharacteristic char;
+
+    for (BluetoothCharacteristic characteristic in characteristics) {
+      print(characteristic);
+      if (characteristic.uuid == Guid('0000FFE9-0000-1000-8000-00805F9B34FB')) {
+        print('sssssqfqwewefssss');
+      }
+      if (characteristic.uuid == Guid('0000FFE4-0000-1000-8000-00805F9B34FB')) {
+        char = characteristic;
+      }
+    }
+
+    if (char != null) {
+      readChar(char, context);
+    }
+  }
+
+  void readChar(
+      BluetoothCharacteristic characteristic, BuildContext context) async {
+    try {
+      await characteristic.setNotifyValue(true);
+    } catch (e) {
+      print(e);
+    }
+
+    receivechar = characteristic;
+
+    Navigator.of(context).pushNamed("/home");
+  }
+
+  void scanDevices(BuildContext context) async {
     emit(SearchLoading());
 
     List<ScanResult> listdev = [];
@@ -62,7 +113,7 @@ class BleCubit extends Cubit<BleState> {
     listdev.forEach((element) {
       listdevwidget.add(bleitem(
           element.device.name == '' ? 'Unknown' : element.device.name, () {
-        connectDevice(element.device);
+        connectDevice(element.device, context);
       }));
     });
 

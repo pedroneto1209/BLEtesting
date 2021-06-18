@@ -40,7 +40,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
-    BlocProvider.of<BleCubit>(context).scanDevices();
+    BlocProvider.of<BleCubit>(context).scanDevices(context);
     super.initState();
   }
 
@@ -84,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         GestureDetector(
           onTap: () {
-            BlocProvider.of<BleCubit>(context).scanDevices();
+            BlocProvider.of<BleCubit>(context).scanDevices(context);
           },
           child: Icon(
             Icons.refresh,

@@ -7,6 +7,8 @@ class BleInitial extends BleState {}
 
 class SearchLoading extends BleState {}
 
+class ReceiveCharSuccess extends BleState {}
+
 class SearchCompleted extends BleState {
   final list;
 
