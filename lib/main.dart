@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:voltzble/cubit/ble_cubit.dart';
@@ -12,6 +13,11 @@ BluetoothCharacteristic writechar;
 String error = 'Logs';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  //block horizontal positioning
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
   runApp(MyApp());
 }
 
@@ -33,6 +39,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   @override
+  void initState() {
+    BlocProvider.of<BleCubit>(context).scanDevices();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Center(
@@ -46,11 +58,20 @@ class _MyHomePageState extends State<MyHomePage> {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
           )),
         ),
-        Container(
-          height: 400,
-          width: 250,
-          child: BlocProvider.of<BleCubit>(context).listdev == []
-              ? Center(
+        BlocBuilder<BleCubit, BleState>(
+          builder: (context, state) {
+            if (state is SearchCompleted) {
+              return Container(
+                height: 400,
+                width: 250,
+                child: ListView(children: state.list),
+              );
+            }
+
+            return Container(
+                height: 400,
+                width: 250,
+                child: Center(
                   child: Container(
                     width: 50,
                     height: 50,
@@ -58,11 +79,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                     ),
                   ),
-                )
-              : ListView(children: BlocProvider.of<BleCubit>(context).listdev),
+                ));
+          },
         ),
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            BlocProvider.of<BleCubit>(context).scanDevices();
+          },
           child: Icon(
             Icons.refresh,
             size: 50,
