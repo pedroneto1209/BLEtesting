@@ -3,12 +3,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:voltzble/main.dart';
 
-class HomeWidget extends StatelessWidget {
-  const HomeWidget({Key key}) : super(key: key);
+class HomeWidget extends StatefulWidget {
+  @override
+  _HomeWidgetState createState() => _HomeWidgetState();
+}
 
+class _HomeWidgetState extends State<HomeWidget> {
   @override
   Widget build(BuildContext context) {
-    List<Widget> loglist = [];
     TextEditingController intvalue = TextEditingController();
 
     return Scaffold(
@@ -79,7 +81,7 @@ class HomeWidget extends StatelessWidget {
             height: 35,
             width: 250,
             child: Text(
-              'Logs:',
+              'Logs',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
             ),
           ),
@@ -88,26 +90,25 @@ class HomeWidget extends StatelessWidget {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.active) {
                   ScrollController _scrollController = ScrollController();
-
                   _scrollToBottom() {
                     _scrollController
                         .jumpTo(_scrollController.position.maxScrollExtent);
                   }
 
-                  loglist.add(Text('${utf8.decode(snapshot.data)}'));
                   WidgetsBinding.instance
                       .addPostFrameCallback((_) => _scrollToBottom());
+
                   return Container(
                       height: 250,
                       width: 250,
                       color: Colors.black.withAlpha(50),
                       child: ListView.builder(
                         controller: _scrollController,
-                        itemCount: loglist.length,
+                        //itemCount: loglist.length,
                         itemBuilder: (context, index) {
                           return ListTile(
-                            title: loglist[index],
-                          );
+                              //title: loglist[index],
+                              );
                         },
                       ));
                 } else {
