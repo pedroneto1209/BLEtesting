@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:voltzble/cubit/ble_cubit.dart';
+import 'package:voltzble/cubit/nav_cubit.dart';
 import 'package:voltzble/router.dart';
 
 StreamController<List<int>> cont = StreamController<List<int>>.broadcast();
@@ -41,6 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     BlocProvider.of<BleCubit>(context).scanDevices(context);
+    BlocProvider.of<NavCubit>(context).setup();
     super.initState();
   }
 
@@ -89,6 +91,20 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Icon(
             Icons.refresh,
             size: 50,
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.of(context).pushNamed('/nav');
+          },
+          child: Container(
+            height: 50,
+            width: 250,
+            child: Center(
+                child: Text(
+              'Testar a navegação',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            )),
           ),
         )
       ]),
