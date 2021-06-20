@@ -1,6 +1,3 @@
-import 'dart:ffi';
-import 'dart:typed_data';
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
@@ -11,33 +8,9 @@ part 'ble_state.dart';
 
 class BleCubit extends Cubit<BleState> {
   List<Widget> loglist = [];
-
   FlutterBlue flutterBlue = FlutterBlue.instance;
-
   Stream receivestream;
-
   BluetoothCharacteristic sendChar;
-
-  //loglist.add(Text('${utf8.decode(snapshot.data)}'));
-
-  //writechar.write([
-  //                          0x60,
-  //                          0xCC,
-  //                          0x1B,
-  //                          0x8A,
-  //                          0x20,
-  //                          0x17,
-  //                          0xFF,
-  //                          0x01,
-  //                          0x01,
-  //                          0x00,
-  //                          0x00,
-  //                          0x00,
-  //                          0x00,
-  //                          0x00,
-  //                          0x00,
-  //                          0x00
-  //                        ]);
 
   BleCubit() : super(BleInitial());
 
@@ -172,115 +145,56 @@ class BleCubit extends Cubit<BleState> {
   }
 
   void send(String value) async {
-    try {
-      int valor = int.parse(value);
+    while (true) {
+      try {
+        int valor = int.parse(value);
 
-      //result
+        //result
 
-      sendChar.write([
-        0xE5,
-        0x07,
-        0x00,
-        0x00,
-        0x10,
-        0x01,
-        0x17,
-        0x40,
-        0x33,
-        valor, //valor,
-        0x42, // 66 curve distance
-        0x00,
-        0x00,
-        0x00,
-        0x18, //testing 24 destination_num
-        0x00
-      ]);
+        sendChar.write([
+          0xE5,
+          0x07,
+          0x00,
+          0x00,
+          0x10,
+          0x01,
+          0x17,
+          0x40,
+          0x33,
+          valor, //valor,
+          0x42, // 66 curve distance
+          0x00,
+          0x00,
+          0x00,
+          0x18, //testing 24 destination_num
+          0x00
+        ]);
 
-      await Future.delayed(Duration(milliseconds: 500));
+        await Future.delayed(Duration(milliseconds: 500));
 
-      sendChar.write([
-        0xE5,
-        0x07,
-        0x00,
-        0x00,
-        0x1A, //nav4
-        0x01,
-        0x17,
-        0x40,
-        0x00, //20 eta hour
-        0x00, //21 eta second
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00
-      ]);
-    } catch (e) {
-      print('insira numero valido');
+        sendChar.write([
+          0xE5,
+          0x07,
+          0x00,
+          0x00,
+          0x1A, //nav4
+          0x01,
+          0x17,
+          0x40,
+          0x00, //20 eta hour
+          0x00, //21 eta second
+          0x00,
+          0x00,
+          0x00,
+          0x00,
+          0x00,
+          0x00
+        ]);
+
+        await Future.delayed(Duration(seconds: 2));
+      } catch (e) {
+        print('insira numero valido');
+      }
     }
-
-    //List<int> buffer = [
-    //  0x60,
-    //  0xCC,
-    //  0x1B,
-    //  0x8A,
-    //  0x20,
-    //  0x17,
-    //  0xFF,
-    //  0x01,
-    //  0x01,
-    //  0x00,
-    //  0x00,
-    //  0x00,
-    //  0x00,
-    //  0x00,
-    //  0x00,
-    //  0x00
-    //];
-
-    //List<int> littleendianbuffer = [
-    //  0x8A,
-    //  0x1B,
-    //  0xCC,
-    //  0x60,
-    //  0x01,
-    //  0xFF,
-    //  0x17,
-    //  0x20,
-    //  0x00,
-    //  0x00,
-    //  0x00,
-    //  0x00,
-    //  0x00,
-    //  0x00,
-    //  0x01
-    //];
-
-    //List<int> answer = [
-    //  0xcb,
-    //  0x23,
-    //  0x9c,
-    //  0xd7,
-    //  0x13,
-    //  0x5d,
-    //  0x6d,
-    //  0xf4,
-    //  0x42,
-    //  0xa5,
-    //  0x32,
-    //  0x1b,
-    //  0xc7,
-    //  0x26,
-    //  0xac,
-    //  0x55
-    //];
-
-    //List<int> encryptedbuffer = encrypt(answer);
-    //decrypt(answer);
-
-    //print(decryptedanswer);
-
-    //sendChar.write(encryptedbuffer);
   }
 }
