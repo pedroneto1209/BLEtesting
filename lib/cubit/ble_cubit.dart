@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
@@ -171,7 +171,55 @@ class BleCubit extends Cubit<BleState> {
     //return encrypter.decryptBytes(cryp.Encrypted.fromBase64(buffer), iv: iv);
   }
 
-  void send() {
+  void send(String value) async {
+    try {
+      int valor = int.parse(value);
+
+      //result
+
+      sendChar.write([
+        0xE5,
+        0x07,
+        0x00,
+        0x00,
+        0x10,
+        0x01,
+        0x17,
+        0x40,
+        0x33,
+        valor, //valor,
+        0x42, // 66 curve distance
+        0x00,
+        0x00,
+        0x00,
+        0x18, //testing 24 destination_num
+        0x00
+      ]);
+
+      await Future.delayed(Duration(milliseconds: 500));
+
+      sendChar.write([
+        0xE5,
+        0x07,
+        0x00,
+        0x00,
+        0x1A, //nav4
+        0x01,
+        0x17,
+        0x40,
+        0x00, //20 eta hour
+        0x00, //21 eta second
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00
+      ]);
+    } catch (e) {
+      print('insira numero valido');
+    }
+
     //List<int> buffer = [
     //  0x60,
     //  0xCC,
@@ -209,48 +257,30 @@ class BleCubit extends Cubit<BleState> {
     //  0x01
     //];
 
-    List<int> answer = [
-      0xcb,
-      0x23,
-      0x9c,
-      0xd7,
-      0x13,
-      0x5d,
-      0x6d,
-      0xf4,
-      0x42,
-      0xa5,
-      0x32,
-      0x1b,
-      0xc7,
-      0x26,
-      0xac,
-      0x55
-    ];
+    //List<int> answer = [
+    //  0xcb,
+    //  0x23,
+    //  0x9c,
+    //  0xd7,
+    //  0x13,
+    //  0x5d,
+    //  0x6d,
+    //  0xf4,
+    //  0x42,
+    //  0xa5,
+    //  0x32,
+    //  0x1b,
+    //  0xc7,
+    //  0x26,
+    //  0xac,
+    //  0x55
+    //];
 
     //List<int> encryptedbuffer = encrypt(answer);
-    decrypt(answer);
+    //decrypt(answer);
 
     //print(decryptedanswer);
 
     //sendChar.write(encryptedbuffer);
-    //sendChar.write([
-    //  0xE5,
-    //  0x07,
-    //  0x00,
-    //  0x00,
-    //  0x10,
-    //  0x01,
-    //  0x17,
-    //  0x40,
-    //  0x33,
-    //  0x02,
-    //  0x32,
-    //  0x00,
-    //  0x00,
-    //  0x00,
-    //  0x00,
-    //  0x00
-    //]);
   }
 }

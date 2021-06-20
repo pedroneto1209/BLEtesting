@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:voltzble/cubit/ble_cubit.dart';
@@ -42,6 +40,11 @@ class _HomeWidgetState extends State<HomeWidget> {
                           decoration: BoxDecoration(
                               border: Border.all(color: Color(0xff192436)))),
                       TextField(
+                          onSubmitted: (_) {
+                            BlocProvider.of<BleCubit>(context)
+                                .send(intvalue.text);
+                            intvalue.clear();
+                          },
                           controller: intvalue,
                           keyboardType: TextInputType.number,
                           textAlign: TextAlign.center,
@@ -71,7 +74,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                         fillColor: Colors.black,
                         shape: new CircleBorder(),
                         onPressed: () {
-                          BlocProvider.of<BleCubit>(context).send();
+                          BlocProvider.of<BleCubit>(context)
+                              .send(intvalue.text);
                           intvalue.clear();
                         },
                       )),
