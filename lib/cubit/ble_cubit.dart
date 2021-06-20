@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:meta/meta.dart';
+import 'package:encrypt/encrypt.dart' as cryp;
 
 part 'ble_state.dart';
 
@@ -10,7 +14,9 @@ class BleCubit extends Cubit<BleState> {
 
   FlutterBlue flutterBlue = FlutterBlue.instance;
 
-  BluetoothCharacteristic receivechar;
+  Stream receivestream;
+
+  BluetoothCharacteristic sendChar;
 
   //loglist.add(Text('${utf8.decode(snapshot.data)}'));
 
@@ -63,7 +69,7 @@ class BleCubit extends Cubit<BleState> {
     for (BluetoothCharacteristic characteristic in characteristics) {
       print(characteristic);
       if (characteristic.uuid == Guid('0000FFE9-0000-1000-8000-00805F9B34FB')) {
-        print('sssssqfqwewefssss');
+        sendChar = characteristic;
       }
       if (characteristic.uuid == Guid('0000FFE4-0000-1000-8000-00805F9B34FB')) {
         char = characteristic;
@@ -83,7 +89,7 @@ class BleCubit extends Cubit<BleState> {
       print(e);
     }
 
-    receivechar = characteristic;
+    receivestream = characteristic.value;
 
     Navigator.of(context).pushNamed("/home");
   }
@@ -141,5 +147,110 @@ class BleCubit extends Cubit<BleState> {
         ),
       ),
     );
+  }
+
+  List<int> encrypt(List<int> buffer) {
+    final key = cryp.Key.fromUtf8("2020JKM3329bN!93");
+
+    final iv = cryp.IV.fromLength(16);
+
+    final encrypter = cryp.Encrypter(cryp.AES(key, mode: cryp.AESMode.ecb));
+
+    return encrypter.encryptBytes(buffer, iv: iv).bytes;
+  }
+
+  void decrypt(List<int> buffer) {
+    final key = cryp.Key.fromUtf8("2020JKM3329bN!93");
+
+    final iv = cryp.IV.fromLength(16);
+
+    final encrypter = cryp.Encrypter(cryp.AES(key, mode: cryp.AESMode.ecb));
+
+    print(encrypter.encryptBytes(buffer, iv: iv).bytes);
+
+    //return encrypter.decryptBytes(cryp.Encrypted.fromBase64(buffer), iv: iv);
+  }
+
+  void send() {
+    //List<int> buffer = [
+    //  0x60,
+    //  0xCC,
+    //  0x1B,
+    //  0x8A,
+    //  0x20,
+    //  0x17,
+    //  0xFF,
+    //  0x01,
+    //  0x01,
+    //  0x00,
+    //  0x00,
+    //  0x00,
+    //  0x00,
+    //  0x00,
+    //  0x00,
+    //  0x00
+    //];
+
+    //List<int> littleendianbuffer = [
+    //  0x8A,
+    //  0x1B,
+    //  0xCC,
+    //  0x60,
+    //  0x01,
+    //  0xFF,
+    //  0x17,
+    //  0x20,
+    //  0x00,
+    //  0x00,
+    //  0x00,
+    //  0x00,
+    //  0x00,
+    //  0x00,
+    //  0x01
+    //];
+
+    List<int> answer = [
+      0xcb,
+      0x23,
+      0x9c,
+      0xd7,
+      0x13,
+      0x5d,
+      0x6d,
+      0xf4,
+      0x42,
+      0xa5,
+      0x32,
+      0x1b,
+      0xc7,
+      0x26,
+      0xac,
+      0x55
+    ];
+
+    //List<int> encryptedbuffer = encrypt(answer);
+    decrypt(answer);
+
+    //print(decryptedanswer);
+
+    //sendChar.write(encryptedbuffer);
+    //sendChar.write([
+    //  0xE5,
+    //  0x07,
+    //  0x00,
+    //  0x00,
+    //  0x10,
+    //  0x01,
+    //  0x17,
+    //  0x40,
+    //  0x33,
+    //  0x02,
+    //  0x32,
+    //  0x00,
+    //  0x00,
+    //  0x00,
+    //  0x00,
+    //  0x00
+    //]);
   }
 }

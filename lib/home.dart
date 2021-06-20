@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:voltzble/main.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:voltzble/cubit/ble_cubit.dart';
 
 class HomeWidget extends StatefulWidget {
   @override
@@ -68,6 +71,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                         fillColor: Colors.black,
                         shape: new CircleBorder(),
                         onPressed: () {
+                          BlocProvider.of<BleCubit>(context).send();
                           intvalue.clear();
                         },
                       )),
@@ -84,7 +88,7 @@ class _HomeWidgetState extends State<HomeWidget> {
             ),
           ),
           StreamBuilder(
-              stream: receiveStream,
+              stream: BlocProvider.of<BleCubit>(context).receivestream,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.active) {
                   ScrollController _scrollController = ScrollController();
@@ -96,17 +100,23 @@ class _HomeWidgetState extends State<HomeWidget> {
                   WidgetsBinding.instance
                       .addPostFrameCallback((_) => _scrollToBottom());
 
+                  BlocProvider.of<BleCubit>(context)
+                      .loglist
+                      .add(Text('${snapshot.data}'));
+
                   return Container(
                       height: 250,
                       width: 250,
                       color: Colors.black.withAlpha(50),
                       child: ListView.builder(
                         controller: _scrollController,
-                        //itemCount: loglist.length,
+                        itemCount:
+                            BlocProvider.of<BleCubit>(context).loglist.length,
                         itemBuilder: (context, index) {
                           return ListTile(
-                              //title: loglist[index],
-                              );
+                            title: BlocProvider.of<BleCubit>(context)
+                                .loglist[index],
+                          );
                         },
                       ));
                 } else {
