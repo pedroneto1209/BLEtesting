@@ -29,6 +29,7 @@ dependencies:
     flutter_bloc: ^7.0.1
     flutter_blue: ^0.8.0
     synchronized: ^3.0.0
+    permission_handler: ^10.2.0
 
 dev_dependencies:
     flutter_test:

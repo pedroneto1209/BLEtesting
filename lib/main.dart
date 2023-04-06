@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:voltzble/cubit/ble_cubit.dart';
-import 'package:voltzble/cubit/nav_cubit.dart';
 import 'package:voltzble/router.dart';
 
 StreamController<List<int>> cont = StreamController<List<int>>.broadcast();
@@ -42,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     BlocProvider.of<BleCubit>(context).scanDevices(context);
-    BlocProvider.of<NavCubit>(context).setup();
+
     super.initState();
   }
 

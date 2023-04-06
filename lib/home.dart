@@ -104,9 +104,10 @@ class _HomeWidgetState extends State<HomeWidget> {
                   WidgetsBinding.instance
                       .addPostFrameCallback((_) => _scrollToBottom());
 
-                  BlocProvider.of<BleCubit>(context)
-                      .loglist
-                      .add(Text('${snapshot.data}'));
+                  if (snapshot.data.length > 3) {
+                    BlocProvider.of<BleCubit>(context).loglist.add(Text(
+                        '${BlocProvider.of<BleCubit>(context).decrypt(snapshot.data)}'));
+                  }
 
                   return Container(
                       height: 250,
