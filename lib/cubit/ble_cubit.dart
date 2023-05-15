@@ -1,6 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
-
+import 'package:path_provider/path_provider.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
@@ -14,6 +15,7 @@ class BleCubit extends Cubit<BleState> {
   FlutterBlue flutterBlue = FlutterBlue.instance;
   Stream receivestream;
   BluetoothCharacteristic sendChar;
+  List<int> bleToken = [0, 0, 0, 0, 0, 0, 0, 0];
 
   BleCubit() : super(BleInitial());
 
@@ -67,6 +69,29 @@ class BleCubit extends Cubit<BleState> {
 
     receivestream = characteristic.value;
 
+    // final directory = await getApplicationDocumentsDirectory();
+    final file = File('/storage/emulated/0/Download/log_EVS_0.0.1.txt');
+
+    // print('PAAATTHHH    ${directory.path}/log_EVS_0.0.1.txt');
+
+    receivestream.listen((data) async {
+      if (data.length > 3) {
+        List<int> incomingData = decrypt(data);
+        print(incomingData
+            .map((i) => i.toRadixString(16).padLeft(2, '0'))
+            .join(' '));
+
+        if (incomingData[5] == 0xff) {
+          assignToken(incomingData);
+        }
+
+        String timeStamp = DateTime.now().toString();
+        String formattedMessage =
+            '$timeStamp; ${incomingData.map((i) => i.toRadixString(16).padLeft(2, '0')).join(' ')};\n';
+        await file.writeAsString(formattedMessage, mode: FileMode.append);
+      }
+    });
+
     Navigator.of(context).pushNamed("/home");
   }
 
@@ -79,7 +104,8 @@ class BleCubit extends Cubit<BleState> {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.bluetoothScan,
       Permission.bluetoothAdvertise,
-      Permission.bluetoothConnect
+      Permission.bluetoothConnect,
+      Permission.manageExternalStorage
     ].request();
     if (statuses[Permission.bluetoothScan] == PermissionStatus.granted &&
         statuses[Permission.bluetoothScan] == PermissionStatus.granted) {
@@ -141,7 +167,7 @@ class BleCubit extends Cubit<BleState> {
 
     final encrypter = cryp.Encrypter(cryp.AES(key, mode: cryp.AESMode.cbc));
 
-    return encrypter.encryptBytes(buffer, iv: iv).bytes;
+    return encrypter.encryptBytes(buffer, iv: iv).bytes.sublist(0, 16);
   }
 
   List<int> decrypt(List<int> buffer) {
@@ -163,8 +189,8 @@ class BleCubit extends Cubit<BleState> {
 
   void send(String value) async {
     try {
-      int valor = int.parse(value);
-      // //result
+      //int valor = int.parse(value);
+
       // sendChar.write([
       //   0xE5,
       //   0x07,
@@ -175,7 +201,7 @@ class BleCubit extends Cubit<BleState> {
       //   0x17,
       //   0x40,
       //   0x33,
-      //   valor, //valor,
+      //   0x02, //valor,
       //   0x42, // 66 curve distance
       //   0x00,
       //   0x00,
@@ -205,25 +231,6 @@ class BleCubit extends Cubit<BleState> {
       //   0x00
       // ]);
 
-      List<int> test = encrypt([
-        0x01,
-        0x02,
-        0x03,
-        0x04,
-        0x05,
-        0x06,
-        0x07,
-        0x08,
-        0x09,
-        0x0A,
-        0x0B,
-        0x0C,
-        0x0D,
-        0x0E,
-        0x0F,
-        0x10
-      ]).sublist(0, 16);
-
       sendChar.write(encrypt([
         0x01,
         0x02,
@@ -241,9 +248,37 @@ class BleCubit extends Cubit<BleState> {
         0x3f,
         0xd5,
         0x87
-      ]).sublist(0, 16));
+      ]));
+
+      await Future.delayed(Duration(seconds: 3));
+
+      while (true) {
+        await sendChar.write(encrypt(
+            bleToken + [0x01, 0x01, 0x17, 0x20, 0x02, 0x3f, 0xd5, 0x87]));
+
+        await sendChar.write(encrypt(
+            bleToken + [0x01, 0x02, 0x17, 0x20, 0x02, 0x3f, 0xd5, 0x87]));
+
+        await sendChar.write(encrypt(
+            bleToken + [0x02, 0x02, 0x17, 0x20, 0x02, 0x3f, 0xd5, 0x87]));
+
+        await sendChar.write(encrypt(
+            bleToken + [0x03, 0x02, 0x17, 0x20, 0x02, 0x3f, 0xd5, 0x87]));
+
+        await sendChar.write(encrypt(
+            bleToken + [0x04, 0x01, 0x17, 0x20, 0x02, 0x3f, 0xd5, 0x87]));
+
+        // sendChar.write(
+        //     encrypt(bleToken + [0x02, 0x01, 0x17, 0x40, 0x02, 0x3f, 0xd5, 0x87]));
+
+        //
+      }
     } catch (e) {
       print('insira numero valido');
     }
+  }
+
+  void assignToken(List<int> incomingData) {
+    bleToken = incomingData.sublist(8, 12);
   }
 }

@@ -91,43 +91,53 @@ class _HomeWidgetState extends State<HomeWidget> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
             ),
           ),
-          StreamBuilder(
-              stream: BlocProvider.of<BleCubit>(context).receivestream,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.active) {
-                  ScrollController _scrollController = ScrollController();
-                  _scrollToBottom() {
-                    _scrollController
-                        .jumpTo(_scrollController.position.maxScrollExtent);
-                  }
+          // StreamBuilder(
+          //     stream: BlocProvider.of<BleCubit>(context).receivestream,
+          //     builder: (context, snapshot) {
+          //       if (snapshot.connectionState == ConnectionState.active) {
+          //         ScrollController _scrollController = ScrollController();
+          //         _scrollToBottom() {
+          //           _scrollController
+          //               .jumpTo(_scrollController.position.maxScrollExtent);
+          //         }
 
-                  WidgetsBinding.instance
-                      .addPostFrameCallback((_) => _scrollToBottom());
+          //         WidgetsBinding.instance
+          //             .addPostFrameCallback((_) => _scrollToBottom());
 
-                  if (snapshot.data.length > 3) {
-                    BlocProvider.of<BleCubit>(context).loglist.add(Text(
-                        '${BlocProvider.of<BleCubit>(context).decrypt(snapshot.data)}'));
-                  }
+          //         if (snapshot.data.length > 3) {
+          //           List<int> incomingData = BlocProvider.of<BleCubit>(context)
+          //               .decrypt(snapshot.data);
 
-                  return Container(
-                      height: 250,
-                      width: 250,
-                      color: Colors.black.withAlpha(50),
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        itemCount:
-                            BlocProvider.of<BleCubit>(context).loglist.length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            title: BlocProvider.of<BleCubit>(context)
-                                .loglist[index],
-                          );
-                        },
-                      ));
-                } else {
-                  return SizedBox();
-                }
-              })
+          //           if (incomingData[5] == 0xff) {
+          //             BlocProvider.of<BleCubit>(context)
+          //                 .assignToken(incomingData);
+          //           }
+
+          //           BlocProvider.of<BleCubit>(context).loglist.add(Text(
+          //               incomingData
+          //                   .map((i) => i.toRadixString(16).padLeft(2, '0'))
+          //                   .join(' ')));
+          //         }
+
+          //         return Container(
+          //             height: 250,
+          //             width: 250,
+          //             color: Colors.black.withAlpha(50),
+          //             child: ListView.builder(
+          //               controller: _scrollController,
+          //               itemCount:
+          //                   BlocProvider.of<BleCubit>(context).loglist.length,
+          //               itemBuilder: (context, index) {
+          //                 return ListTile(
+          //                   title: BlocProvider.of<BleCubit>(context)
+          //                       .loglist[index],
+          //                 );
+          //               },
+          //             ));
+          //       } else {
+          //         return SizedBox();
+          //       }
+          //     })
         ]),
       ),
     );
